@@ -1,0 +1,42 @@
+name: build-and-test
+on:
+  workflow_call:
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # - name: Setup .net core
+      #   uses: actions/setup-dotnet@v4
+      #   with:
+      #     dotnet-version: 8.0.106
+
+      # - name: Build solution - ${{ matrix.configuration }}
+      #   run: dotnet build --configuration ${{ matrix.configuration }}
+      #   working-directory: ./src
+
+      # - name: Set up Docker Buildx
+      #   uses: docker/setup-buildx-action@v2
+
+      # - name: Set up Docker Compose
+      #   uses: docker/setup-qemu-action@v2
+
+      # - name: Setup test environment
+      #   run: |
+      #     chmod +x ./localstack/startup.sh
+      #     docker compose up --detach --build --wait
+      #   working-directory: ./src/test-env
+
+      # - name: Run tests - ${{ matrix.configuration }}
+      #   run: dotnet test --configuration ${{ matrix.configuration }}
+      #   working-directory: ./src
+
+      # - name: Stop test environment
+      #   run: docker compose down
+      #   working-directory: ./src/test-env

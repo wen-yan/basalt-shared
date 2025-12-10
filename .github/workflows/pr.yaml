@@ -1,0 +1,39 @@
+name: pr
+
+on:
+  pull_request:
+    branches: [master]
+    types: [opened, synchronize]
+
+jobs:
+  pr-check-branch-name:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check branch name
+        run: |
+          BRANCH_NAME=${{ github.event.pull_request.head.ref }}
+          branch_name_regex="^dev-[a-zA-Z0-9_-]+$"
+          if [[ ! "$BRANCH_NAME" =~ $branch_name_regex ]]; then
+            echo "Error: pull request branch name '$BRANCH_NAME' does not match the required pattern '$branch_name_regex'."
+            exit 1
+          else
+            echo "pull request branch name '$BRANCH_NAME' matches the required pattern '$branch_name_regex'."
+          fi
+
+  pr-build:
+    uses: ./.github/workflows/build-and-test.yaml
+
+  pr-auto-approve:
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Auto approve if author is specific user
+        if: github.event.pull_request.user.login == 'wen-yan'
+        uses: hmarr/auto-approve-action@v2
+        with:
+          github-token: ${{ secrets.PR_AUTO_APPROVE_BOT_TOKEN }}  # need to add secret in Settings -> Secrets and variables -> Actions
