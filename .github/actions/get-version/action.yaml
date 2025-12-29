@@ -35,6 +35,9 @@ runs:
         VERSION_PREFIX=$(xmllint --xpath "string(/Project/PropertyGroup/VersionPrefix)" "${VERSION_FILE_PATH}")
         VERSION_SUFFIX=$(xmllint --xpath "string(/Project/PropertyGroup/VersionSuffix)" "${VERSION_FILE_PATH}")
 
+        VERSION_PATCH=$(git rev-list --count HEAD)
+        VERSION_PREFIX="${VERSION_PREFIX}.${VERSION_PATCH}"
+
         if [ -n "$VERSION_SUFFIX" ]; then
           VERSION_PACKAGE="${VERSION_PREFIX}-${VERSION_SUFFIX}"
         else
