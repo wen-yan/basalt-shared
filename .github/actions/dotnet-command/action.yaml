@@ -28,7 +28,7 @@ runs:
     - name: Run dotnet command - ${{ inputs.command }}
       shell: bash
       run: |
-        CMD = "dotnet ${{ inputs.command }} --configuration ${{ inputs.configuration }}"
+        CMD="dotnet ${{ inputs.command }} --configuration ${{ inputs.configuration }}"
 
         if [ -n "${{ inputs.version-prefix }}" ]; then
           CMD="$CMD /p:VersionPrefix=${{ inputs.version-prefix }}"
