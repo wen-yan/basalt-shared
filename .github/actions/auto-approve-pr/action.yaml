@@ -1,0 +1,16 @@
+
+name: Auto approve PR
+description: Automatically approve pull requests from dependabot and specific users
+inputs:
+  pr-auto-approve-bot-token:
+    description: GitHub token for the bot account to auto approve PRs
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Auto approve if author is specific user
+      if: github.event.pull_request.user.login == 'wen-yan'
+      uses: hmarr/auto-approve-action@v2
+      with:
+        github-token: ${{ inputs.pr-auto-approve-bot-token }}

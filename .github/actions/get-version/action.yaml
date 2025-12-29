@@ -1,0 +1,52 @@
+
+name: Get version
+description: Get the version information from the repository
+inputs:
+  version-file-path:
+    description: Path of version file
+    required: true
+
+outputs:
+  version-prefix:
+    description: "The version prefix"
+  version-suffix:
+    description: "The version suffix"
+  version-package:
+    description: "The full package version"
+  version-major:
+    description: "The major version"
+  version-minor:
+    description: "The major version"
+
+runs:
+  using: "composite"
+  steps:
+    - name: get version
+      id: get-version
+      shell: bash
+      run: |
+        VERSION_FILE_PATH=${{ inputs.version-file-path }}
+        VERSION_PREFIX=$(xmllint --xpath "string(/Project/PropertyGroup/VersionPrefix)" "${VERSION_FILE_PATH}")
+        VERSION_SUFFIX=$(xmllint --xpath "string(/Project/PropertyGroup/VersionSuffix)" "${VERSION_FILE_PATH}")
+
+        if [ -n "$VERSION_SUFFIX" ]; then
+          VERSION_PACKAGE="${VERSION_PREFIX}-${VERSION_SUFFIX}"
+        else
+          VERSION_PACKAGE="$VERSION_PREFIX"
+        fi
+
+        VERSION_MAJOR=$(echo "$VERSION_PREFIX" | cut -d. -f1)
+        VERSION_MINOR=$(echo "$VERSION_PREFIX" | cut -d. -f2)
+
+        echo "VERSION_PREFIX = ${VERSION_PREFIX}"
+        echo "VERSION_SUFFIX = ${VERSION_SUFFIX}"
+        echo "VERSION_PACKAGE = ${VERSION_PACKAGE}"
+        echo "VERSION_MAJOR = ${VERSION_MAJOR}"
+        echo "VERSION_MINOR = ${VERSION_MINOR}"
+
+        echo "version-prefix=$VERSION_PREFIX" >> $GITHUB_ENV
+        echo "version-suffix=$VERSION_SUFFIX" >> $GITHUB_ENV
+        echo "version-package=$VERSION_PACKAGE" >> $GITHUB_ENV
+        echo "version-major=$VERSION_MAJOR" >> $GITHUB_ENV
+        echo "version-minor=$VERSION_MINOR" >> $GITHUB_ENV
+
