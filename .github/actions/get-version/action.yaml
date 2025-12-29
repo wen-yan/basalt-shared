@@ -53,9 +53,8 @@ runs:
         echo "VERSION_MAJOR = ${VERSION_MAJOR}"
         echo "VERSION_MINOR = ${VERSION_MINOR}"
 
-        echo "version-prefix=$VERSION_PREFIX" >> $GITHUB_ENV
-        echo "version-suffix=$VERSION_SUFFIX" >> $GITHUB_ENV
-        echo "version-package=$VERSION_PACKAGE" >> $GITHUB_ENV
-        echo "version-major=$VERSION_MAJOR" >> $GITHUB_ENV
-        echo "version-minor=$VERSION_MINOR" >> $GITHUB_ENV
-
+        echo "version-prefix=$VERSION_PREFIX" >> $GITHUB_OUTPUT
+        echo "version-suffix=$VERSION_SUFFIX" >> $GITHUB_OUTPUT
+        echo "version-package=$VERSION_PACKAGE" >> $GITHUB_OUTPUT
+        echo "version-major=$VERSION_MAJOR" >> $GITHUB_OUTPUT
+        echo "version-minor=$VERSION_MINOR" >> $GITHUB_OUTPUT
