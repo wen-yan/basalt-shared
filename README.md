@@ -1,3 +1,3 @@
-# basalt-template
+# basalt-shared
 
-This is a base repo for creating Basalt repos.
+This is a repo for sharing. Like workflow actions.

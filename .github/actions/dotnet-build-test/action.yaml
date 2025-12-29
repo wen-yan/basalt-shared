@@ -1,0 +1,44 @@
+
+name: Dotnet command
+description: Dotnet command
+inputs:
+  working-directory:
+    description: "The working directory containing the solution or project to build"
+    required: true
+
+  command:
+    description: "The dotnet command to run (e.g., build, test)"
+    required: true
+
+  configuration:
+    description: "The configuration to build and test"
+    required: true
+
+  version-prefix:
+    description: VersionPrefix value
+    required: false
+
+  version-suffix:
+    description: VersionSuffix value
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Run dotnet command - ${{ inputs.command }}
+      shell: bash
+      run: |
+        CMD = "dotnet ${{ inputs.command }} --configuration ${{ inputs.configuration }}"
+
+        if [ -n "${{ inputs.version-prefix }}" ]; then
+          CMD="$CMD /p:VersionPrefix=${{ inputs.version-prefix }}"
+        fi
+
+        if [ -n "${{ inputs.version-suffix }}" ]; then
+          CMD="$CMD /p:VersionSuffix=${{ inputs.version-suffix }}"
+        fi
+
+        echo "Running command: $CMD"
+        $CMD
+      working-directory: ${{ inputs.working-directory }}
+

@@ -1,0 +1,28 @@
+
+name: Check PR Branch Name
+description: Check if the PR branch name follows the naming convention and link issue
+
+runs:
+  using: "composite"
+  steps:
+    - name: Check branch name
+      shell: bash
+      run: |
+        BRANCH_NAME=${{ github.event.pull_request.head.ref }}
+        branch_name_regex="^dev-([0-9]+)-[a-zA-Z0-9_-]+$"
+        if [[ "$BRANCH_NAME" =~ $branch_name_regex ]]; then
+          issue_id=${BASH_REMATCH[1]}
+          echo "ISSUE_ID=$issue_id" >> $GITHUB_ENV
+          echo "pull request branch name '$BRANCH_NAME' matches the required pattern '$branch_name_regex', issue id: '$issue_id'."
+        else
+          echo "Error: pull request branch name '$BRANCH_NAME' does not match the required pattern '$branch_name_regex'."
+          exit 1
+        fi
+    - name: Link issue to PR
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        body=$(gh pr view ${{ github.event.pull_request.number }} --json body -q '.body')
+        new_body=$(printf "%s\nRelated to #%s" "$body" "$ISSUE_ID")
+        gh pr edit ${{ github.event.pull_request.number }} --body "$new_body"

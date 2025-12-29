@@ -1,69 +1,45 @@
+
 name: release
 on:
-  workflow_dispatch: # manually triggered
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
 jobs:
-  publish-nuget-package:
+  tag:
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-22.04
-    outputs:
-      version_prefix: ${{ steps.generate-release-version.outputs.version_prefix }}
-      version_suffix: ${{ steps.generate-release-version.outputs.version_suffix }}
-      version_package: ${{ steps.generate-release-version.outputs.version_package }}
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: get-version
+        uses: ./.github/actions/get-version
         with:
-          fetch-depth: 0
-          submodules: recursive
+          version-file-path: "src/Version.props"
 
-      - name: Setup Dotnet
-        uses: actions/setup-dotnet@v4
-        with:
-          dotnet-version: 8.0.106
-
-      - name: Generate Release Version
-        id: generate-release-version
-        shell: pwsh
+      - name: Create Git tag
         run: |
-          . ./src/build/build-utils.ps1
-          $Version = Get-ReleaseVersion
-          Write-Output "Version = $Version"
-          Write-Output "version_prefix=$($Version.VersionPrefix)" >> $env:GITHUB_OUTPUT
-          Write-Output "version_suffix=$($Version.VersionSuffix)" >> $env:GITHUB_OUTPUT
-          Write-Output "version_package=$($Version.PackageVersion)" >> $env:GITHUB_OUTPUT
+          TAG_PACKAGE="v${{ steps.get-version.outputs.version-package }}"
+          TAG_MAJOR="v${{ steps.get-version.outputs.version-major }}"
 
-      - name: Build
-        run: dotnet build --configuration Release /p:VersionPrefix=${{ steps.generate-release-version.outputs.version_prefix }} /p:VersionSuffix=${{ steps.generate-release-version.outputs.version_suffix }}
-        working-directory: ./src
+          echo "TAG_PACKAGE = ${TAG_PACKAGE}"
+          echo "TAG_MAJOR = ${TAG_MAJOR}"          
 
-      - name: Test
-        run: dotnet test --configuration Release /p:VersionPrefix=${{ steps.generate-release-version.outputs.version_prefix }} /p:VersionSuffix=${{ steps.generate-release-version.outputs.version_suffix }}
-        working-directory: ./src
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
 
-      - name: Pack
-        run: dotnet pack --configuration Release /p:VersionPrefix=${{ steps.generate-release-version.outputs.version_prefix }} /p:VersionSuffix=${{ steps.generate-release-version.outputs.version_suffix }}
-        working-directory: ./src
-
-      - name: Publish
-        run: |
-          ls -la ./src/src/Basalt.CommandLine/bin/Release
-          dotnet nuget push ./src/src/Basalt.CommandLine/bin/Release/Basalt.CommandLine.${{ steps.generate-release-version.outputs.version_package }}.nupkg --api-key ${{ secrets.NUGET_API_KEY }} --source https://api.nuget.org/v3/index.json
-
-  create-release:
-    needs: [publish-nuget-package]
-    runs-on: ubuntu-22.04
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Create Github Release
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh release create release-${{ needs.publish-nuget-package.outputs.version_package }} --generate-notes ${{ needs.publish-nuget-package.outputs.version_suffix == '' && '' || '--prerelease' }}
+          git tag ${TAG_PACKAGE}
+          git tag -f ${TAG_MAJOR}
+          
+          git push origin ${TAG_PACKAGE}
+          git push origin ${TAG_MAJOR} --force
 
   non-master-branch:
     if: ${{ github.ref != 'refs/heads/master' }}
     runs-on: ubuntu-22.04
     steps:
       - name: Show failure message
-        run: core.setFailed('Release workflow can only work on `master` branch, current is ${{ github.ref }}'')
+        run: core.setFailed("Release workflow can only work on `master` branch, current is ${{ github.ref }}")
