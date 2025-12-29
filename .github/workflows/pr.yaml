@@ -27,3 +27,18 @@ jobs:
         uses: ./.github/actions/auto-approve-pr
         with:
           pr-auto-approve-bot-token: ${{ secrets.PR_AUTO_APPROVE_BOT_TOKEN }}
+
+  get-version:
+    runs-on: ubuntu-22.04
+    outputs:
+      version-package: ${{ steps.get-version.outputs.version-package }}
+      version-major: ${{ steps.get-version.outputs.version-major }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get version
+        id: get-version
+        uses: ./.github/actions/get-version
+        with:
+          version-file-path: "src/Version.props"
