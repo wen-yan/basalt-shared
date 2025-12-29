@@ -9,14 +9,23 @@ inputs:
 outputs:
   version-prefix:
     description: "The version prefix"
+    value: ${{ steps.get-version.outputs.version-prefix }}
+
   version-suffix:
     description: "The version suffix"
+    value: ${{ steps.get-version.outputs.version-suffix }}
+
   version-package:
     description: "The full package version"
+    value: ${{ steps.get-version.outputs.version-package }}
+
   version-major:
     description: "The major version"
+    value: ${{ steps.get-version.outputs.version-major }}
+
   version-minor:
-    description: "The major version"
+    description: "The minor version"
+    value: ${{ steps.get-version.outputs.version-minor }}
 
 runs:
   using: "composite"
