@@ -21,6 +21,12 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Install xmllint
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libxml2-utils
+
     - name: get version
       id: get-version
       shell: bash
