@@ -45,3 +45,25 @@ jobs:
         uses: ./.github/actions/get-version
         with:
           version-file-path: "src/Version.props"
+
+  pr-build:
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .net core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.416
+
+      - name: Build solution - ${{ matrix.configuration }}
+        uses: ./.github/actions/dotnet-command
+        with:
+          command: build
+          configuration: ${{ matrix.configuration }}
+          working-directory: ./src/BasaltIconsGenerator
+

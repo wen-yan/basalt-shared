@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:xml="http://www.w3.org/XML/1998/namespace" width="128" height="128" viewBox="-2.0994854, -6.118725, 64.198975, 64.19897">
+  <defs>
+    <polygon points="8.660254,5 6.123234E-16,10 -8.660254,5 -8.660254,-5 -1.83697E-15,-10 8.660254,-5" id="base" />
+  </defs>
+  <rect x="-1.617993" y="-5.637232" width="63.23599" height="63.23599" rx="3.209949" stroke-width="0.9629846" style="fill:#2C2C2C;stroke:#C8D1D9;" />
+  <use xlink:href="#base" x="10" y="8.660254" style="fill:#4DA3FF;" />
+  <use xlink:href="#base" x="30" y="8.660254" style="fill:#6BCB77;" />
+  <use xlink:href="#base" x="50" y="8.660254" style="fill:#FFD6D0;" />
+  <use xlink:href="#base" x="20" y="25.98076" style="fill:#FF9F43;" />
+  <use xlink:href="#base" x="40" y="25.98076" style="fill:#9D4EDD;" />
+  <use xlink:href="#base" x="10" y="43.30127" style="fill:#FF6B6B;" />
+</svg>
