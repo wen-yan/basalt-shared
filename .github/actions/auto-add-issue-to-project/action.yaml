@@ -1,5 +1,5 @@
 
-name: Auto add new issues to project
+name: Add issue to project
 description: Automatically add new issues to a specified GitHub Project
 inputs:
   project-url:
