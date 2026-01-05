@@ -1,0 +1,20 @@
+
+name: Auto add new issues to project
+description: Automatically add new issues to a specified GitHub Project
+inputs:
+  project-url:
+    description: The URL of the GitHub Project to which new issues will be added
+    required: false
+    default: https://github.com/users/wen-yan/projects/2
+  github-token:
+    description: GitHub token with permissions to manage issues and projects
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Add issues to project
+      uses: actions/add-to-project@v1
+      with:
+        project-url: ${{ inputs.project-url }}
+        github-token: ${{ inputs.github-token }}
