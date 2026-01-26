@@ -12,12 +12,47 @@ runs:
         BRANCH_NAME=${{ github.event.pull_request.head.ref }}
         branch_name_regex="^dev-([0-9]+)-[a-zA-Z0-9_-]+$"
         if [[ "$BRANCH_NAME" =~ $branch_name_regex ]]; then
-          issue_id=${BASH_REMATCH[1]}
-          echo "issue-id=$issue_id" >> $GITHUB_OUTPUT
-          echo "pull request branch name '$BRANCH_NAME' matches the required pattern '$branch_name_regex', issue id: '$issue_id'."
+          issue_number=${BASH_REMATCH[1]}
+          echo "issue-number=$issue_number" >> $GITHUB_OUTPUT
+          echo "pull request branch name '$BRANCH_NAME' matches the required pattern '$branch_name_regex', issue number: '$issue_number'."
         else
           echo "Error: pull request branch name '$BRANCH_NAME' does not match the required pattern '$branch_name_regex'."
           exit 1
+        fi
+
+    - name: Check issue status
+      id: check-issue-status
+      shell: bash
+      env:
+        GH_TOKEN: ${{ github.token }}
+      run: |
+        ISSUE_NUMBER=${{ steps.check-branch-name.outputs.issue-number }}
+
+        issue=$(gh api graphql \
+          -f query='
+            query ($owner: String!, $repo: String!, $issueNumber: Int!) {
+              repository(owner: $owner, name: $repo) {
+                issue(number: $issueNumber) {
+                  id
+                  state
+                }
+              }
+            }' \
+          -F issueNumber=$ISSUE_NUMBER \
+          -f owner="${{ github.repository_owner }}" \
+          -f repo="${{ github.event.repository.name }}" \
+          | jq -r '.data.repository.issue' \
+        )
+
+        issue_state=$(echo "$issue" | jq -r '.state')
+        issue_id=$(echo "$issue" | jq -r '.id')
+
+        if [ "$issue_state" != "OPEN" ]; then
+          echo "Error: issue #$ISSUE_NUMBER is not open (current state: $issue_state)."
+          exit 1
+        else
+          echo "Issue #$ISSUE_NUMBER is open."
+          echo "issue-id=$issue_id" >> $GITHUB_OUTPUT
         fi
 
     - name: Link issue to PR
@@ -25,7 +60,7 @@ runs:
       env:
         GH_TOKEN: ${{ github.token }}
       run: |
-        ISSUE_ID=${{ steps.check-branch-name.outputs.issue-id }}
+        ISSUE_NUMBER=${{ steps.check-branch-name.outputs.issue-number }}
         body=$(gh pr view ${{ github.event.pull_request.number }} --json body -q '.body')
-        new_body=$(printf "%s\nRelated to #%s" "$body" "$ISSUE_ID")
+        new_body=$(printf "%s\nRelated to #%s" "$body" "$ISSUE_NUMBER")
         gh pr edit ${{ github.event.pull_request.number }} --body "$new_body"
